@@ -1,0 +1,1519 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Palmarès — WorkFlow IT</title>
+<style>
+  :root {
+    --bg: #f4f7fb;
+    --card: #ffffff;
+    --ink: #1f2937;
+    --muted: #6b7280;
+    --accent: #2563eb;
+    --gold: #f59e0b;
+    --silver: #9ca3af;
+    --bronze: #b45309;
+    --ok: #16a34a;
+    --err: #dc2626;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    min-height: 100vh;
+  }
+  header {
+    background: linear-gradient(135deg, #1e3a8a, #2563eb);
+    color: #fff;
+    padding: 24px 20px;
+    text-align: center;
+  }
+  header h1 { margin: 0 0 6px; font-size: 1.9rem; }
+  header p { margin: 0; opacity: .9; }
+  main { max-width: 1180px; margin: 0 auto; padding: 24px 16px 60px; }
+  .card {
+    background: var(--card);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 14px rgba(0,0,0,.06);
+  }
+  .import-row {
+    display: flex; gap: 12px; flex-wrap: wrap; align-items: center;
+  }
+  .import-row input[type="file"] { flex: 1 1 260px; }
+  button {
+    border: none; border-radius: 8px; padding: 10px 16px; font-size: .95rem;
+    font-weight: 600; cursor: pointer; transition: transform .1s, opacity .2s;
+  }
+  button:disabled { opacity: .45; cursor: not-allowed; }
+  button.primary { background: var(--accent); color: #fff; }
+  button.primary:hover:not(:disabled) { transform: translateY(-1px); }
+  .btn-row { display: flex; gap: 10px; flex-wrap: wrap; margin: 16px 0; }
+  .btn-row button { background: #e5e7eb; color: var(--ink); }
+  .btn-row button.active { background: var(--accent); color: #fff; }
+  .status { padding: 10px 14px; border-radius: 8px; margin: 12px 0; font-size: .9rem; }
+  .status.ok { background: #dcfce7; color: #166534; }
+  .status.err { background: #fee2e2; color: #991b1b; }
+  .status.info { background: #dbeafe; color: #1e40af; }
+  .podium {
+    display: flex; justify-content: center; align-items: flex-end; gap: 14px;
+    margin: 30px 0 20px; min-height: 260px; flex-wrap: wrap;
+  }
+  .step {
+    flex: 0 1 240px; text-align: center;
+    border-radius: 12px 12px 0 0; padding: 18px 12px 12px;
+    color: #fff; font-weight: 700; position: relative;
+    display: flex; flex-direction: column; justify-content: flex-end;
+    box-shadow: 0 6px 16px rgba(0,0,0,.12);
+  }
+  .step.first  { background: linear-gradient(180deg, #fbbf24, #f59e0b); min-height: 220px; }
+  .step.second { background: linear-gradient(180deg, #d1d5db, #9ca3af); min-height: 170px; }
+  .step.third  { background: linear-gradient(180deg, #d97706, #b45309); min-height: 130px; }
+  .step .rank { font-size: 2.2rem; line-height: 1; }
+  .step .name { font-size: 1.15rem; margin: 6px 0 2px; }
+  .step .sub { font-size: .8rem; opacity: .95; font-weight: 500; }
+  .step .score { font-size: 1.4rem; margin-top: 6px; }
+  .step .raw { font-size: .78rem; opacity: .9; font-weight: 500; margin-top: 2px; }
+  .medal { font-size: 1.6rem; }
+  .details { margin-top: 24px; }
+  .table-wrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; font-size: .9rem; }
+  th, td { padding: 8px 10px; text-align: left; border-bottom: 1px solid #e5e7eb; white-space: nowrap; }
+  th { background: #f3f4f6; font-weight: 600; }
+  tr:hover td { background: #f9fafb; }
+  .score-badge { display: inline-block; padding: 2px 8px; border-radius: 999px; background: #dbeafe; color: #1e40af; font-weight: 700; font-size: .85rem; }
+  .raw-score { color: var(--muted); font-size: .82rem; }
+  .na { color: var(--muted); font-style: italic; }
+  .empty { text-align: center; padding: 40px 10px; color: var(--muted); }
+  .formula { font-size: .82rem; color: var(--muted); margin-top: 10px; line-height: 1.55; }
+  .formula strong { color: var(--ink); }
+  .comments-box {
+    width: 100%; min-height: 140px; border: 1px solid #e5e7eb; border-radius: 8px;
+    padding: 10px; font-family: inherit; font-size: .85rem; line-height: 1.5;
+    background: #f9fafb; color: var(--ink); resize: vertical;
+  }
+  .warnings { border-left: 4px solid var(--gold); background: #fffbeb; color: #92400e; padding: 12px 14px; border-radius: 8px; margin-bottom: 16px; font-size: .88rem; line-height: 1.5; }
+  .warnings ul { margin: 6px 0 0 18px; padding: 0; }
+  .analysis-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 14px; }
+  .analysis { border: 1px solid #e5e7eb; border-radius: 10px; padding: 14px; background: #fff; }
+  .analysis-head { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 8px; }
+  .analysis-head h4 { margin: 0; font-size: 1rem; }
+  .analysis-head .sub { color: var(--muted); font-size: .8rem; }
+  .analysis h5 { margin: 10px 0 4px; font-size: .82rem; text-transform: uppercase; letter-spacing: .03em; color: var(--muted); }
+  .analysis ul { margin: 0 0 0 18px; padding: 0; font-size: .86rem; line-height: 1.5; }
+  .analysis li { margin: 2px 0; }
+  .analysis-note { font-size: .8rem; color: var(--muted); margin: 8px 0 0; line-height: 1.45; }
+  .tag { display: inline-block; padding: 1px 8px; border-radius: 999px; font-size: .72rem; font-weight: 700; }
+  .tag.ok { background: #dcfce7; color: #166534; }
+  .tag.warn { background: #fef3c7; color: #92400e; }
+  .tag.info { background: #dbeafe; color: #1e40af; }
+  .rank-pill { background: #e5e7eb; border-radius: 999px; padding: 1px 8px; font-weight: 700; font-size: .8rem; }
+  .legend { font-size: .82rem; color: var(--muted); line-height: 1.5; }
+  footer { text-align: center; color: var(--muted); font-size: .8rem; padding: 20px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>🏆 Palmarès — WorkFlow IT</h1>
+  <p>Importez le fichier JSON exporté par le formateur pour établir le palmarès des équipes et des membres.</p>
+</header>
+<main>
+  <div class="card">
+    <h2>1. Importer l’export JSON</h2>
+    <div class="import-row">
+      <input type="file" id="fileInput" accept="application/json,.json">
+      <button class="primary" id="importBtn">Importer</button>
+    </div>
+    <div id="status"></div>
+    <p class="formula">Le fichier doit être l’export généré par le bouton « Export JSON » du bilan formateur (bilan des 3 équipes + historique complet). Les anciens exports restent acceptés : les indicateurs indisponibles sont affichés « N/A » et ne sont jamais remplacés par une valeur inventée.</p>
+  </div>
+
+  <div class="card" id="actionsCard" hidden>
+    <h2>2. Choisir un palmarès</h2>
+    <div class="btn-row">
+      <button data-kind="teams">Palmarès des équipes</button>
+      <button data-kind="po">Palmarès des Product Owner</button>
+      <button data-kind="sm">Palmarès des Scrum Master</button>
+      <button data-kind="dev">Palmarès des Developers</button>
+    </div>
+    <div id="result"></div>
+  </div>
+</main>
+<footer>WorkFlow IT — page autonome de rétrospective visuelle.</footer>
+
+<script>
+(function () {
+  'use strict';
+  let data = null;
+
+  const statusEl = document.getElementById('status');
+  const resultEl = document.getElementById('result');
+  const actionsCard = document.getElementById('actionsCard');
+  const fileInput = document.getElementById('fileInput');
+
+  // ---------------------------------------------------------------------
+  // Utilitaires généraux
+  // ---------------------------------------------------------------------
+  function setStatus(msg, kind) {
+    statusEl.className = 'status ' + (kind || 'info');
+    statusEl.textContent = msg;
+  }
+
+  function esc(s) {
+    return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
+      return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c];
+    });
+  }
+
+  function num(v) {
+    const n = Number(v);
+    return Number.isFinite(n) ? n : 0;
+  }
+
+  function intNum(v) {
+    return Math.trunc(num(v));
+  }
+
+  function isFiniteNumber(v) {
+    return v !== null && v !== undefined && v !== '' && Number.isFinite(Number(v));
+  }
+
+  function boolish(v) {
+    if (v === true || v === 1) return true;
+    if (typeof v === 'string') {
+      const s = v.trim().toLowerCase();
+      return s === 'true' || s === '1' || s === 'oui';
+    }
+    return false;
+  }
+
+  function clamp(v, min, max) {
+    return Math.max(min, Math.min(max, v));
+  }
+
+  function round1(v) {
+    return Math.round(v * 10) / 10;
+  }
+
+  function pct(n, d) {
+    if (!(d > 0)) return null;
+    return Math.round((n / d) * 100);
+  }
+
+  function fmtPct(v) {
+    return v == null ? 'N/A' : v + ' %';
+  }
+
+  function fmtRaw(v) {
+    return v == null ? 'N/A' : round1(v) + ' / 100';
+  }
+
+  function fmtNote(v) {
+    if (v == null) return 'N/A';
+    return Number.isInteger(v) ? String(v) : v.toFixed(1);
+  }
+
+  function fmtCount(v) {
+    return v == null ? 'N/A' : String(v);
+  }
+
+  function average(values) {
+    const clean = (values || []).filter(function (v) { return v != null && Number.isFinite(Number(v)); });
+    if (!clean.length) return null;
+    return clean.reduce(function (a, b) { return a + Number(b); }, 0) / clean.length;
+  }
+
+  function normalizeText(s) {
+    return String(s == null ? '' : s)
+      .trim()
+      .toLowerCase()
+      .replace(/\s+/g, ' ');
+  }
+
+  function roleName(role) {
+    if (role === 'PO') return 'Product Owner';
+    if (role === 'SCRUM_MASTER') return 'Scrum Master';
+    if (role === 'DEVELOPER') return 'Développeur';
+    return role ? String(role) : 'Développeur';
+  }
+
+  function historyEntries() {
+    if (!data || !data.history || !Array.isArray(data.history.entries)) return [];
+    return data.history.entries.filter(function (e) { return e && typeof e === 'object'; });
+  }
+
+  function validate(obj) {
+    if (!obj || typeof obj !== 'object') return 'Fichier JSON invalide.';
+    if (!obj.bilan || !Array.isArray(obj.bilan.teams) || obj.bilan.teams.length < 3) {
+      return 'Bilan manquant ou incomplet (3 équipes attendues).';
+    }
+    for (let i = 0; i < obj.bilan.teams.length; i++) {
+      const t = obj.bilan.teams[i];
+      if (!t || typeof t.id === 'undefined' || !Array.isArray(t.members)) {
+        return 'Équipe ' + (i + 1) + ' invalide.';
+      }
+      if (typeof t.us_validees === 'undefined') {
+        return 'Indicateurs manquants pour l’équipe ' + t.id + '.';
+      }
+    }
+    if (!obj.history || !Array.isArray(obj.history.entries)) {
+      return 'Historique manquant ou invalide.';
+    }
+    return null;
+  }
+
+  // ---------------------------------------------------------------------
+  // Lecture des décisions client
+  // ---------------------------------------------------------------------
+  function stringList(value) {
+    if (!Array.isArray(value)) return [];
+    return value.map(function (v) { return String(v == null ? '' : v).trim(); })
+      .filter(function (v) { return v !== ''; });
+  }
+
+  function normalizeDecision(raw) {
+    if (!raw || typeof raw !== 'object') return null;
+    const storyId = String(raw.story_id || '').trim();
+    const attempt = Math.max(1, intNum(raw.attempt) || 1);
+    // Identité imposée par le moteur : story#tentative. On la privilégie
+    // toujours, même si un export ancien fournit un id différent.
+    const id = String(storyId ? storyId + '#' + attempt : (raw.id || '')).trim();
+    if (id === '') return null;
+
+    const decisionRaw = String(raw.decision || '').trim().toLowerCase();
+    const accepted = decisionRaw === 'acceptee' || decisionRaw === 'accepte'
+      || decisionRaw === 'validee' || decisionRaw === 'valide';
+    const refused = decisionRaw === 'refusee' || decisionRaw === 'refuse'
+      || decisionRaw === 'rejetee' || decisionRaw === 'rejete';
+    if (!accepted && !refused) return null;
+
+    return {
+      id: id,
+      attempt: attempt,
+      taskId: raw.task_id == null ? null : String(raw.task_id),
+      taskTitre: raw.task_titre == null ? '' : String(raw.task_titre),
+      storyId: storyId,
+      storyTitre: raw.story_titre == null ? '' : String(raw.story_titre),
+      developer: String(raw.developer || '').trim(),
+      risk: boolish(raw.risk),
+      riskFlags: stringList(raw.risk_flags),
+      riskLabels: stringList(raw.risk_labels),
+      decision: accepted ? 'acceptee' : 'refusee',
+      decidedAt: raw.decided_at == null ? '' : String(raw.decided_at),
+      decidedBy: raw.decided_by == null ? '' : String(raw.decided_by)
+    };
+  }
+
+  // Une décision est identifiée par story#tentative. Un doublon d'export ou
+  // un rafraîchissement ne doit jamais être compté deux fois.
+  function normalizeDecisions(team) {
+    const raw = Array.isArray(team && team.client_decisions) ? team.client_decisions : [];
+    const seen = Object.create(null);
+    const out = [];
+    raw.forEach(function (entry) {
+      const decision = normalizeDecision(entry);
+      if (!decision || seen[decision.id]) return;
+      seen[decision.id] = true;
+      out.push(decision);
+    });
+    return out;
+  }
+
+  function aggregateDecisions(team, decisions, stats) {
+    const hasDecisionHistory = Array.isArray(team && team.client_decisions);
+    let source = 'none';
+    let total = 0;
+    let accept = 0;
+    let refused = 0;
+    let risk = null;
+    let safe = null;
+    let decisionsKnown = false;
+
+    if (hasDecisionHistory) {
+      // L'historique des décisions, même vide, fait foi. Les agrégats ne
+      // servent que si cet historique est totalement absent de l'export.
+      decisionsKnown = true;
+      if (decisions.length > 0) {
+        source = 'decisions';
+        total = decisions.length;
+        decisions.forEach(function (d) {
+          if (d.decision === 'acceptee') accept++;
+          else refused++;
+          if (d.risk) risk = (risk == null ? 0 : risk) + 1;
+        });
+        risk = risk == null ? 0 : risk;
+        safe = total - risk;
+      } else {
+        source = 'decisions-empty';
+      }
+    } else if (stats && typeof stats === 'object' && isFiniteNumber(stats.total)) {
+      source = 'stats';
+      decisionsKnown = true;
+      total = Math.max(0, intNum(stats.total));
+      accept = Math.max(0, intNum(stats.acceptations));
+      refused = Math.max(0, intNum(stats.refus));
+      risk = isFiniteNumber(stats.avec_risque) ? Math.max(0, intNum(stats.avec_risque)) : null;
+      safe = isFiniteNumber(stats.sans_risque) ? Math.max(0, intNum(stats.sans_risque)) : null;
+    }
+
+    return {
+      source: source,
+      decisionsKnown: decisionsKnown,
+      available: decisionsKnown && total > 0,
+      total: total,
+      accept: accept,
+      refus: refused,
+      risk: risk,
+      safe: safe,
+      taux_acceptation: pct(accept, total),
+      taux_refus: pct(refused, total),
+      pct_avec_risque: risk == null ? null : pct(risk, total),
+      pct_sans_risque: safe == null ? null : pct(safe, total)
+    };
+  }
+
+  // ---------------------------------------------------------------------
+  // Lecture des messages du Scrum Master dans l'historique
+  // ---------------------------------------------------------------------
+  function chatText(entry) {
+    let text = String((entry && entry.message) || '');
+    const prefix = 'Message de chat envoyé : ';
+    if (text.indexOf(prefix) === 0) text = text.slice(prefix.length);
+    if (!text && entry && entry.details && typeof entry.details === 'object') {
+      text = String(entry.details.text || '');
+    }
+    return text;
+  }
+
+  function buildChatIndex(entries) {
+    const index = { available: false, teams: Object.create(null) };
+    (entries || []).forEach(function (entry) {
+      if (!entry || entry.type !== 'chat_message') return;
+      index.available = true;
+      const teamId = Number(entry.team);
+      if (!Number.isFinite(teamId)) return;
+      const author = String(entry.author || '');
+      const text = chatText(entry);
+      const key = normalizeText(text) || ('sans-texte:' + String(entry.ts || '') + ':' + String(entry.message || ''));
+      if (!index.teams[teamId]) index.teams[teamId] = Object.create(null);
+      if (!index.teams[teamId][author]) {
+        index.teams[teamId][author] = { total: 0, distinct: 0, seen: Object.create(null) };
+      }
+      const row = index.teams[teamId][author];
+      row.total++;
+      if (!row.seen[key]) {
+        row.seen[key] = true;
+        row.distinct++;
+      }
+    });
+    return index;
+  }
+
+  function chatFor(index, teamId, login) {
+    const teamChat = index && index.teams ? index.teams[Number(teamId)] : null;
+    const row = teamChat ? teamChat[String(login || '')] : null;
+    return {
+      available: !!(index && index.available),
+      total: row ? row.total : 0,
+      distinct: row ? row.distinct : 0
+    };
+  }
+
+  // ---------------------------------------------------------------------
+  // Lecture de l'historique par développeur
+  // ---------------------------------------------------------------------
+  function historyCountsFor(entries, teamId, login) {
+    const counts = {
+      completed: 0, created: 0, moved: 0, unblocked: 0,
+      blocked: 0, archived: 0, totalEvents: 0
+    };
+    (entries || []).forEach(function (entry) {
+      if (!entry || Number(entry.team) !== Number(teamId)) return;
+      if (String(entry.author || '') !== String(login || '')) return;
+      counts.totalEvents++;
+      switch (entry.type) {
+        case 'task_complete': counts.completed++; break;
+        case 'task_create': counts.created++; break;
+        case 'task_move': counts.moved++; break;
+        case 'task_unblock': counts.unblocked++; break;
+        case 'task_block': counts.blocked++; break;
+        case 'task_archive': counts.archived++; break;
+      }
+    });
+    return counts;
+  }
+
+  // ---------------------------------------------------------------------
+  // Construction des lignes développeurs
+  // ---------------------------------------------------------------------
+  function buildDevRows(team, memberMap, decisions, stats, entries) {
+    const rows = Object.create(null);
+    const hasDecisionHistory = Array.isArray(team && team.client_decisions);
+    const statsDevs = stats && Array.isArray(stats.developers) ? stats.developers : [];
+    const source = hasDecisionHistory
+      ? (decisions.length > 0 ? 'decisions' : 'empty')
+      : (statsDevs.length > 0 ? 'stats' : 'none');
+
+    function ensure(login, role, rowSource) {
+      let key = String(login || '').trim();
+      if (key === '') key = 'non_identifie';
+      if (!rows[key]) {
+        const member = memberMap[key];
+        rows[key] = {
+          login: key,
+          role: role || (member ? member.role : ''),
+          roleLabel: roleName(role || (member ? member.role : '')),
+          source: rowSource || source,
+          decisionsKnown: false,
+          riskKnown: false,
+          decisions: 0,
+          accept: 0,
+          refus: 0,
+          risk: 0,
+          safe: 0,
+          tasks: Object.create(null),
+          tasksKnown: false,
+          riskFlagCounts: Object.create(null),
+          riskLabelByKey: Object.create(null),
+          history: historyCountsFor(entries, team.id, key)
+        };
+      }
+      return rows[key];
+    }
+
+    // Tous les Developers de l'équipe figurent au palmarès, même sans décision.
+    Object.keys(memberMap).forEach(function (login) {
+      if (memberMap[login].role === 'DEVELOPER') ensure(login, 'DEVELOPER');
+    });
+
+    if (source === 'decisions') {
+      decisions.forEach(function (d) {
+        const row = ensure(d.developer, null, 'decisions');
+        row.decisionsKnown = true;
+        row.decisions++;
+        if (d.decision === 'acceptee') row.accept++;
+        else row.refus++;
+        if (d.risk) {
+          row.riskKnown = true;
+          row.risk++;
+          d.riskFlags.forEach(function (flag) {
+            row.riskFlagCounts[flag] = (row.riskFlagCounts[flag] || 0) + 1;
+          });
+          d.riskLabels.forEach(function (label, i) {
+            const key = d.riskFlags[i] || label;
+            row.riskLabelByKey[key] = label;
+          });
+        } else {
+          row.riskKnown = true;
+        }
+        if (d.taskId) {
+          row.tasks[d.taskId] = true;
+          row.tasksKnown = true;
+        }
+        row.safe = row.decisions - row.risk;
+      });
+      // L'historique des décisions est complet : un Developer sans décision
+      // a bien zéro décision, et non une donnée manquante.
+      Object.keys(rows).forEach(function (login) {
+        rows[login].decisionsKnown = true;
+        rows[login].riskKnown = true;
+      });
+    } else if (source === 'stats') {
+      statsDevs.forEach(function (s) {
+        if (!s || !s.login) return;
+        // Les agrégats serveur listent tous les membres, y compris PO et SM.
+        // Seuls les Developers (ou les auteurs non identifiés) entrent au
+        // palmarès des développeurs.
+        const statsRole = String(s.role || '').toUpperCase();
+        if (statsRole !== '' && statsRole !== 'DEVELOPER') return;
+        const row = ensure(s.login, s.role || null, 'stats');
+        row.decisionsKnown = true;
+        row.riskKnown = isFiniteNumber(s.avec_risque) || isFiniteNumber(s.sans_risque);
+        row.decisions = Math.max(0, intNum(s.total));
+        row.accept = Math.max(0, intNum(s.acceptations));
+        row.refus = Math.max(0, intNum(s.refus));
+        row.risk = isFiniteNumber(s.avec_risque) ? Math.max(0, intNum(s.avec_risque)) : 0;
+        row.safe = isFiniteNumber(s.sans_risque) ? Math.max(0, intNum(s.sans_risque)) : Math.max(0, row.decisions - row.risk);
+      });
+    } else if (source === 'empty') {
+      Object.keys(rows).forEach(function (login) { rows[login].decisionsKnown = true; });
+    }
+
+    const out = Object.keys(rows).map(function (login) {
+      const row = rows[login];
+      row.acceptRate = row.decisionsKnown ? pct(row.accept, row.decisions) : null;
+      row.refusRate = row.decisionsKnown ? pct(row.refus, row.decisions) : null;
+      row.riskRate = row.riskKnown && row.decisions > 0 ? pct(row.risk, row.decisions) : null;
+      row.qualityAvailable = row.decisionsKnown && row.decisions > 0 && row.acceptRate != null;
+      if (row.qualityAvailable) {
+        const acceptRatio = row.accept / row.decisions;
+        const riskRatio = row.riskKnown ? (row.risk / row.decisions) : 0;
+        // Un risque est binaire par décision : plusieurs critères déclenchés
+        // ne créent jamais plusieurs pénalités.
+        row.qualityScore = 100 * acceptRatio * (1 - 0.25 * riskRatio);
+      } else {
+        row.qualityScore = null;
+      }
+      row.taskCount = row.tasksKnown ? Object.keys(row.tasks).length : null;
+      row.topRisks = Object.keys(row.riskFlagCounts).map(function (key) {
+        return {
+          key: key,
+          label: row.riskLabelByKey[key] || key,
+          count: row.riskFlagCounts[key]
+        };
+      }).sort(function (a, b) { return b.count - a.count || a.label.localeCompare(b.label, 'fr'); });
+      return row;
+    });
+
+    return out;
+  }
+
+  // ---------------------------------------------------------------------
+  // Contexte d'une équipe
+  // ---------------------------------------------------------------------
+  function buildTeamContext(team, chatIndex, entries) {
+    const id = Number(team.id);
+    const members = Array.isArray(team.members) ? team.members : [];
+    const memberMap = Object.create(null);
+    members.forEach(function (m) {
+      if (!m || !m.login) return;
+      memberMap[String(m.login)] = { login: String(m.login), role: String(m.role || '') };
+    });
+
+    const decisions = normalizeDecisions(team);
+    const stats = team.client_decision_stats && typeof team.client_decision_stats === 'object'
+      ? team.client_decision_stats
+      : null;
+    const agg = aggregateDecisions(team, decisions, stats);
+    const devRows = buildDevRows(team, memberMap, decisions, stats, entries);
+
+    const poMember = members.find(function (m) { return m && m.role === 'PO'; });
+    const smMember = members.find(function (m) { return m && m.role === 'SCRUM_MASTER'; });
+    const hasUsOutcome = isFiniteNumber(team.us_validees) || isFiniteNumber(team.us_refusees);
+
+    let validated = null;
+    let refused = null;
+    let outcomeSource = 'none';
+    let outcomeKnown = false;
+    if (hasUsOutcome) {
+      validated = isFiniteNumber(team.us_validees) ? Math.max(0, num(team.us_validees)) : 0;
+      refused = isFiniteNumber(team.us_refusees) ? Math.max(0, num(team.us_refusees)) : 0;
+      outcomeSource = 'stories';
+      outcomeKnown = true;
+    } else if (agg.available) {
+      validated = agg.accept;
+      refused = agg.refus;
+      outcomeSource = 'decisions';
+      outcomeKnown = true;
+    }
+
+    const decided = outcomeKnown ? validated + refused : null;
+    const acceptanceRate = outcomeKnown && decided > 0 ? pct(validated, decided) : null;
+    const refusalRate = outcomeKnown && decided > 0 ? pct(refused, decided) : null;
+    const tasksDone = isFiniteNumber(team.taches_terminees)
+      ? Math.max(0, num(team.taches_terminees))
+      : entries.filter(function (e) {
+        return e && Number(e.team) === id && e.type === 'task_complete';
+      }).length;
+
+    const chat = chatFor(chatIndex, id, smMember ? smMember.login : '');
+
+    return {
+      id: id,
+      team: team,
+      members: members,
+      memberMap: memberMap,
+      decisions: decisions,
+      stats: stats,
+      agg: agg,
+      devRows: devRows,
+      po: poMember ? { login: String(poMember.login), role: 'PO' } : null,
+      sm: smMember ? { login: String(smMember.login), role: 'SCRUM_MASTER' } : null,
+      validated: validated,
+      refused: refused,
+      decided: decided,
+      outcomeSource: outcomeSource,
+      outcomeKnown: outcomeKnown,
+      acceptanceRate: acceptanceRate,
+      refusalRate: refusalRate,
+      pending: isFiniteNumber(team.us_pretes) ? Math.max(0, num(team.us_pretes)) : null,
+      tasksDone: tasksDone,
+      chat: chat
+    };
+  }
+
+  // ---------------------------------------------------------------------
+  // Scores bruts
+  // ---------------------------------------------------------------------
+  function historyActivity(row) {
+    const h = row.history || {};
+    return (h.completed || 0) * 2
+      + (h.created || 0) * 0.5
+      + (h.moved || 0) * 0.2
+      + (h.unblocked || 0) * 0.5
+      - (h.blocked || 0) * 0.5
+      - (h.archived || 0) * 1;
+  }
+
+  function buildContext() {
+    const entries = historyEntries();
+    const chatIndex = buildChatIndex(entries);
+    const teams = (data && data.bilan && Array.isArray(data.bilan.teams) ? data.bilan.teams : [])
+      .filter(function (t) { return t && typeof t === 'object'; })
+      .map(function (team) { return buildTeamContext(team, chatIndex, entries); });
+
+    const maxDecisions = Math.max(0, ...teams.map(function (t) {
+      return Math.max(0, ...t.devRows.map(function (r) { return r.decisions; }));
+    }));
+    const maxValidated = Math.max(0, ...teams.map(function (t) { return t.validated || 0; }));
+    const maxMessages = Math.max(0, ...teams.map(function (t) { return t.chat.distinct || 0; }));
+    const maxDecided = Math.max(0, ...teams.map(function (t) { return t.decided || 0; }));
+    const maxDevActivity = Math.max(0, ...teams.map(function (t) {
+      return Math.max(0, ...t.devRows.map(function (r) {
+        return (r.decisions || 0) + (r.history && r.history.completed ? r.history.completed : 0);
+      }));
+    }));
+
+    // Une référence minimale de 3 évite qu'une seule tâche ou un seul message
+    // suffise à saturer le volume. Les scores restent relatifs au groupe.
+    const decisionsReference = Math.max(3, maxDecisions);
+    const validatedReference = Math.max(3, maxValidated);
+    const decidedReference = Math.max(3, maxDecided);
+    const messagesReference = Math.max(3, maxMessages);
+
+    const devItems = [];
+    teams.forEach(function (team) {
+      team.devRows.forEach(function (row) {
+        row.maxDecisions = maxDecisions;
+        if (row.qualityAvailable) {
+          row.volumeScore = 100 * clamp(row.decisions / decisionsReference, 0, 1);
+          row.raw = 0.70 * row.qualityScore + 0.30 * row.volumeScore;
+          row.fallback = false;
+        } else {
+          // Repli pour les anciens exports : même logique que l'ancien
+          // palmarès (historique), sans fabriquer de taux de qualité.
+          row.volumeScore = null;
+          row.activityScore = clamp(historyActivity(row), 0, 20) / 20 * 100;
+          row.raw = row.activityScore;
+          row.fallback = true;
+        }
+        row.taskCount = row.tasksKnown ? Object.keys(row.tasks).length : null;
+        row.label = row.login;
+        row.sub = 'Équipe ' + team.id + ' · ' + row.roleLabel;
+        row.team = team.id;
+        row.kind = 'dev';
+        row.activityCap = devActivityCap(row);
+        devItems.push(row);
+      });
+    });
+
+    const poItems = teams.filter(function (team) { return !!team.po; }).map(function (team) {
+      const teamQuality = average(team.devRows.filter(function (r) {
+        return r.qualityAvailable && r.qualityScore != null;
+      }).map(function (r) { return r.qualityScore; }));
+      const qualityAvailable = teamQuality != null;
+      const volumeScore = team.validated != null
+        ? 100 * clamp(team.validated / validatedReference, 0, 1)
+        : null;
+      let raw = 0;
+      if (qualityAvailable) {
+        // Les refus sont déjà contenus dans la qualité des développeurs :
+        // on ne les retire pas une seconde fois. Si le volume est inconnu,
+        // la pondération est renormalisée au lieu d'inventer zéro.
+        raw = volumeScore != null
+          ? 0.60 * teamQuality + 0.40 * volumeScore
+          : teamQuality;
+      } else if (team.acceptanceRate != null) {
+        raw = volumeScore != null
+          ? 0.60 * team.acceptanceRate + 0.40 * volumeScore
+          : team.acceptanceRate;
+      }
+      return {
+        kind: 'po',
+        label: team.po ? team.po.login : 'Équipe ' + team.id,
+        login: team.po ? team.po.login : '',
+        team: team.id,
+        sub: 'Équipe ' + team.id,
+        raw: raw,
+        validated: team.validated,
+        refused: team.refused,
+        decided: team.decided,
+        acceptanceRate: team.acceptanceRate,
+        refusalRate: team.refusalRate,
+        clientDecisions: team.agg.total,
+        teamQuality: teamQuality,
+        volumeScore: volumeScore,
+        pending: team.pending,
+        outcomeKnown: team.outcomeKnown,
+        outcomeSource: team.outcomeSource,
+        maxValidated: maxValidated,
+        dataAvailable: team.outcomeKnown || qualityAvailable || team.agg.available,
+        activityCap: poActivityCap(team)
+      };
+    });
+
+    const smItems = teams.filter(function (team) { return !!team.sm; }).map(function (team) {
+      const teamDevRaw = average(team.devRows.map(function (r) { return r.raw; }));
+      const messagesScore = team.chat.available
+        ? 100 * clamp(team.chat.distinct / messagesReference, 0, 1)
+        : null;
+      let raw = 0;
+      if (teamDevRaw != null && messagesScore != null) {
+        raw = 0.65 * teamDevRaw + 0.35 * messagesScore;
+      } else if (teamDevRaw != null) {
+        raw = teamDevRaw;
+      } else if (messagesScore != null) {
+        // Le chat seul ne peut pas produire une excellente note.
+        raw = 0.5 * messagesScore;
+      }
+      return {
+        kind: 'sm',
+        label: team.sm ? team.sm.login : 'Équipe ' + team.id,
+        login: team.sm ? team.sm.login : '',
+        team: team.id,
+        sub: 'Équipe ' + team.id,
+        raw: raw,
+        messagesTotal: team.chat.total,
+        messagesDistinct: team.chat.distinct,
+        messagesAvailable: team.chat.available,
+        messagesScore: messagesScore,
+        teamDevRaw: teamDevRaw,
+        accepted: team.validated,
+        refused: team.refused,
+        decided: team.decided,
+        acceptanceRate: team.acceptanceRate,
+        maxMessages: maxMessages,
+        dataAvailable: teamDevRaw != null || team.chat.available,
+        activityCap: smActivityCap(team)
+      };
+    });
+
+    const maxTeamActivity = Math.max(3, ...teams.map(function (team) {
+      const devAct = team.devRows.reduce(function (a, r) {
+        return a + (r.decisions || 0) + (r.history && r.history.completed ? r.history.completed : 0);
+      }, 0);
+      const poDecided = team.decided != null ? team.decided : 0;
+      const smAct = (team.chat && team.chat.available) ? (team.chat.distinct || 0) : 0;
+      return devAct + poDecided + smAct;
+    }));
+    const teamItems = teams.map(function (team) {
+      const devRaw = average(team.devRows.map(function (r) { return r.raw; }));
+      const poItem = poItems.find(function (p) { return p.team === team.id; });
+      const smItem = smItems.find(function (s) { return s.team === team.id; });
+      const poRaw = team.po && poItem ? poItem.raw : null;
+      const smRaw = team.sm && smItem ? smItem.raw : null;
+
+      // Pour le score collectif, on ne réinjecte pas la performance des
+      // développeurs déjà contenue dans les scores PO et SM. On retient la
+      // contribution propre de chaque rôle : volume de validations du PO et
+      // activité de chat du SM. Les scores PO/SM complets restent affichés.
+      const poContribution = team.po && poItem ? poItem.volumeScore : null;
+      const smContribution = team.sm && smItem ? smItem.messagesScore : null;
+      const parts = [];
+      if (devRaw != null) parts.push({ weight: 0.60, value: devRaw });
+      if (poContribution != null) parts.push({ weight: 0.20, value: poContribution });
+      if (smContribution != null) parts.push({ weight: 0.20, value: smContribution });
+      const totalWeight = parts.reduce(function (a, p) { return a + p.weight; }, 0);
+      const raw = totalWeight > 0
+        ? parts.reduce(function (a, p) { return a + p.weight * p.value; }, 0) / totalWeight
+        : 0;
+      return {
+        kind: 'team',
+        label: 'Équipe ' + team.id,
+        team: team.id,
+        sub: team.members.map(function (m) { return m.login; }).join(', '),
+        raw: raw,
+        devRaw: devRaw,
+        poRaw: poRaw,
+        smRaw: smRaw,
+        poContribution: poContribution,
+        smContribution: smContribution,
+        tasksDone: team.tasksDone,
+        accepted: team.validated,
+        refused: team.refused,
+        decided: team.decided,
+        acceptanceRate: team.acceptanceRate,
+        pending: team.pending,
+        missingRoles: [
+          !team.po ? 'PO' : null,
+          !team.sm ? 'SM' : null,
+          devRaw == null ? 'développeurs' : null,
+          team.sm && smContribution == null ? 'SM (chat indisponible)' : null
+        ].filter(Boolean),
+        dataAvailable: parts.length > 0,
+        activityCap: teamActivityCap(team)
+      };
+    });
+
+    const warnings = [];
+    teams.forEach(function (team) {
+      if (team.agg.source === 'stats') {
+        warnings.push('Équipe ' + team.id + ' : l’historique individuel des décisions est absent ; les agrégats client existants sont utilisés.');
+      }
+      if (!team.agg.decisionsKnown) {
+        warnings.push('Équipe ' + team.id + ' : décisions client absentes (ancien export). Les taux de qualité sont affichés « N/A » et le score des développeurs utilise l’historique.');
+      }
+      if (team.stats && team.agg.decisionsKnown) {
+        const pairs = [
+          ['total', 'total', 'total'],
+          ['acceptations', 'accept', 'acceptations'],
+          ['refus', 'refus', 'refus'],
+          ['avec_risque', 'risk', 'avec risque'],
+          ['sans_risque', 'safe', 'sans risque']
+        ];
+        const mismatches = [];
+        pairs.forEach(function (p) {
+          if (isFiniteNumber(team.stats[p[0]]) && team.agg[p[1]] != null && num(team.stats[p[0]]) !== team.agg[p[1]]) {
+            mismatches.push(p[2] + ' (' + num(team.stats[p[0]]) + ' dans les agrégats, ' + team.agg[p[1]] + ' dans les décisions)');
+          }
+        });
+        if (mismatches.length) {
+          warnings.push('Équipe ' + team.id + ' : incohérence détectée entre les agrégats et les décisions — ' + mismatches.join(' ; ') + '. Les décisions individuelles font foi.');
+        }
+      }
+    });
+
+    return {
+      teams: teams,
+      devItems: devItems,
+      poItems: poItems,
+      smItems: smItems,
+      teamItems: teamItems,
+      warnings: warnings,
+      entries: entries,
+      chatIndex: chatIndex
+    };
+  }
+
+  // ---------------------------------------------------------------------
+  // Classement et notes
+  // ---------------------------------------------------------------------
+  function compareRaw(a, b) {
+    return num(b.raw) - num(a.raw);
+  }
+
+  function sortItems(items, kind) {
+    return items.slice().sort(function (a, b) {
+      let d = compareRaw(a, b);
+      if (d) return d;
+      if (kind === 'dev') {
+        d = (b.acceptRate == null ? -1 : b.acceptRate) - (a.acceptRate == null ? -1 : a.acceptRate);
+        if (d) return d;
+        d = b.decisions - a.decisions;
+        if (d) return d;
+        d = (a.riskRate == null ? 101 : a.riskRate) - (b.riskRate == null ? 101 : b.riskRate);
+        if (d) return d;
+      } else if (kind === 'po') {
+        d = (b.acceptanceRate == null ? -1 : b.acceptanceRate) - (a.acceptanceRate == null ? -1 : a.acceptanceRate);
+        if (d) return d;
+        d = (b.validated == null ? -1 : b.validated) - (a.validated == null ? -1 : a.validated);
+        if (d) return d;
+      } else if (kind === 'sm') {
+        d = (b.teamDevRaw == null ? -1 : b.teamDevRaw) - (a.teamDevRaw == null ? -1 : a.teamDevRaw);
+        if (d) return d;
+        d = b.messagesDistinct - a.messagesDistinct;
+        if (d) return d;
+      } else if (kind === 'team') {
+        d = (b.devRaw == null ? -1 : b.devRaw) - (a.devRaw == null ? -1 : a.devRaw);
+        if (d) return d;
+        d = (b.poRaw == null ? -1 : b.poRaw) - (a.poRaw == null ? -1 : a.poRaw);
+        if (d) return d;
+        d = (b.smRaw == null ? -1 : b.smRaw) - (a.smRaw == null ? -1 : a.smRaw);
+        if (d) return d;
+        return a.team - b.team;
+      }
+      return String(a.label).localeCompare(String(b.label), 'fr');
+    });
+  }
+
+  // Plafond de note selon le niveau d'activité réel (valeurs absolues).
+  // Ces valeurs sont des maxima : une note ne peut jamais les dépasser.
+  function activityCapFromThresholds(value, thresholds) {
+    let cap = thresholds[0][1];
+    for (let i = 0; i < thresholds.length; i++) {
+      if (value >= thresholds[i][0]) cap = thresholds[i][1];
+      else break;
+    }
+    return cap;
+  }
+
+  function devActivityCap(row) {
+    const activity = (row.decisions || 0) + (row.history && row.history.completed ? row.history.completed : 0);
+    return activityCapFromThresholds(activity, [
+      [0, 2], [1, 5], [2, 8], [3, 11], [5, 15], [8, 18], [11, 20]
+    ]);
+  }
+
+  function poActivityCap(team) {
+    const activity = team.decided != null ? team.decided : 0;
+    return activityCapFromThresholds(activity, [
+      [0, 2], [1, 5], [2, 8], [3, 11], [5, 15], [8, 18], [11, 20]
+    ]);
+  }
+
+  function smActivityCap(team) {
+    const activity = team.chat && team.chat.available ? (team.chat.distinct || 0) : 0;
+    return activityCapFromThresholds(activity, [
+      [0, 2], [1, 5], [2, 8], [3, 11], [5, 15], [8, 18], [11, 20]
+    ]);
+  }
+
+  function teamActivityCap(team) {
+    const devActivity = (team.devRows || []).reduce(function (a, r) {
+      return a + (r.decisions || 0) + (r.history && r.history.completed ? r.history.completed : 0);
+    }, 0);
+    const poActivity = team.decided != null ? team.decided : 0;
+    const smActivity = (team.chat && team.chat.available) ? (team.chat.distinct || 0) : 0;
+    const activity = devActivity + poActivity + smActivity;
+    return activityCapFromThresholds(activity, [
+      [0, 2], [2, 5], [4, 8], [7, 11], [12, 15], [20, 18], [30, 20]
+    ]);
+  }
+
+  // Le score brut détermine le rang. La note /20 est ensuite strictement
+  // décroissante : le premier reçoit 20, les suivants baissent selon l'écart
+  // de performance normalisé. Une correction garantit qu'aucun rang successif
+  // ne reçoit la même note après arrondi.
+  function assignNotes(items) {
+    if (!items.length) return items;
+    const n = items.length;
+    const maxRaw = Math.max.apply(null, items.map(function (it) { return num(it.raw); }));
+    const minRaw = Math.min.apply(null, items.map(function (it) { return num(it.raw); }));
+    const spread = maxRaw - minRaw;
+    const span = Math.min(12, 2 * Math.max(0, n - 1));
+    // Le plafond de référence est celui du premier (meilleur score brut).
+    const capTop = (typeof items[0].activityCap === 'number') ? items[0].activityCap : 20;
+    const scaleFactor = capTop / 20;
+    let previous = capTop;
+    items.forEach(function (it, index) {
+      let note;
+      if (index === 0) {
+        note = 20;
+      } else {
+        const ratio = spread > 0 ? (maxRaw - num(it.raw)) / spread : index / (n - 1);
+        note = 20 - span * ratio;
+      }
+      // Mise à l'échelle par l'activité : la qualité est pondérée par le
+      // plafond d'activité du meilleur, ce qui préserve les écarts de score
+      // brut tout en pénalisant l'inactivité.
+      note = note * scaleFactor;
+      // Plafond individuel d'activité (aucune note ne peut le dépasser).
+      const cap = (typeof it.activityCap === 'number') ? it.activityCap : 20;
+      note = Math.min(note, cap);
+      note = clamp(round1(note), 0, 20);
+      // Stricte décroissance : évite les notes identiques pour des rangs
+      // successifs (uniquement en cas d'égalité résiduelle).
+      if (index > 0 && note >= previous) note = clamp(round1(previous - 0.1), 0, 20);
+      it.note = note;
+      previous = note;
+    });
+    return items;
+  }
+
+  function prepare(items, kind) {
+    return assignNotes(sortItems(items, kind));
+  }
+
+  // ---------------------------------------------------------------------
+  // Explications pédagogiques
+  // ---------------------------------------------------------------------
+  function riskText(row) {
+    if (!row.riskKnown) return '<span class="na">N/A</span>';
+    if (!row.topRisks || !row.topRisks.length) {
+      return row.risk ? '<span class="na">Risque signalé (catégories non exportées)</span>' : 'Aucun';
+    }
+    return row.topRisks.slice(0, 3).map(function (r) {
+      return esc(r.label) + ' (' + r.count + ')';
+    }).join(' ; ');
+  }
+
+  function analysisFor(kind, item) {
+    const strengths = [];
+    const improvements = [];
+    const notes = [];
+
+    if (kind === 'dev') {
+      if (item.qualityAvailable) {
+        if (item.acceptRate >= 80) {
+          strengths.push('Taux d’acceptation client élevé (' + fmtPct(item.acceptRate) + ') sur ' + item.decisions + ' décision(s).');
+        } else if (item.acceptRate >= 50) {
+          strengths.push('Taux d’acceptation client correct (' + fmtPct(item.acceptRate) + ').');
+        } else {
+          improvements.push('Taux d’acceptation client à améliorer (' + fmtPct(item.acceptRate) + ') : ' + item.refus + ' refus sur ' + item.decisions + ' décision(s).');
+        }
+        if (item.riskKnown) {
+          if (item.risk === 0) {
+            strengths.push('Aucune décision associée à une tâche à risque.');
+          } else {
+            const riskRate = Math.round((item.risk / item.decisions) * 100);
+            if (riskRate <= 20) {
+              strengths.push('Peu de décisions concernent une tâche à risque (' + riskRate + ' %).');
+            } else if (riskRate > 40) {
+              improvements.push('Part de décisions avec risque élevée (' + riskRate + ' %).');
+            }
+            if (item.topRisks && item.topRisks.length) {
+              improvements.push('Critères de risque les plus fréquents : ' + item.topRisks.slice(0, 3).map(function (r) {
+                return r.label + ' (' + r.count + ')';
+              }).join(' ; ') + '.');
+            }
+          }
+        }
+        if (item.decisions === item.maxDecisions && item.decisions > 0) {
+          strengths.push('Volume de décisions le plus élevé du palmarès (' + item.decisions + ').');
+        } else if (item.decisions < item.maxDecisions * 0.5) {
+          improvements.push('Volume de décisions inférieur à la moitié du meilleur volume (' + item.decisions + ' contre ' + item.maxDecisions + ').');
+        }
+        if (item.taskCount != null && item.taskCount > 0) {
+          strengths.push(item.taskCount + ' tâche(s) distincte(s) évaluée(s) par le client.');
+        }
+      } else {
+        if (!item.decisionsKnown) {
+          notes.push('Décisions client absentes de cet export : la qualité est « N/A » et le score utilise uniquement l’historique.');
+        } else {
+          notes.push('Aucune décision client enregistrée : la qualité n’est pas évaluable (« N/A »).');
+        }
+        if (item.history.completed > 0) {
+          strengths.push(item.history.completed + ' tâche(s) terminée(s) dans l’historique.');
+        }
+        if (item.history.created > 0) {
+          strengths.push(item.history.created + ' tâche(s) créée(s).');
+        }
+        if (item.history.blocked > 0) {
+          improvements.push(item.history.blocked + ' blocage(s) signalé(s) dans l’historique.');
+        }
+        if (item.history.totalEvents === 0) {
+          notes.push('Aucune activité mesurable dans cet export.');
+        }
+      }
+    } else if (kind === 'po') {
+      if (item.decided != null && item.decided > 0) {
+        if (item.acceptanceRate >= 80) {
+          strengths.push('Taux d’acceptation client élevé (' + fmtPct(item.acceptanceRate) + ') sur ' + item.decided + ' US tranchée(s).');
+        } else if (item.acceptanceRate >= 50) {
+          strengths.push('Taux d’acceptation client correct (' + fmtPct(item.acceptanceRate) + ').');
+        } else {
+          improvements.push('Taux d’acceptation client à améliorer (' + fmtPct(item.acceptanceRate) + ') : ' + item.refused + ' refus sur ' + item.decided + ' US tranchée(s).');
+        }
+        if (item.validated === item.maxValidated && item.validated > 0) {
+          strengths.push('Plus grand nombre d’US validées / acceptées (' + item.validated + ').');
+        }
+        if (item.refused > 0) {
+          notes.push(item.refused + ' US refusée(s) après retour négatif du client. Ces refus sont déjà intégrés au taux d’acceptation et ne sont pas retirés une seconde fois du score.');
+        }
+      } else {
+        notes.push('Aucune US validée ou refusée : l’activité de validation n’est pas mesurable sur ce sprint.');
+      }
+      if (item.teamQuality != null) {
+        if (item.teamQuality >= 70) {
+          strengths.push('Qualité moyenne des développeurs élevée (' + fmtRaw(item.teamQuality) + ').');
+        } else if (item.teamQuality < 50) {
+          improvements.push('Qualité moyenne des développeurs à consolider (' + fmtRaw(item.teamQuality) + ').');
+        }
+      } else {
+        notes.push('Qualité des développeurs indisponible : le score du PO utilise le taux d’acceptation client.');
+      }
+      if (item.pending > 0) {
+        notes.push(item.pending + ' US encore en attente de validation.');
+      }
+    } else if (kind === 'sm') {
+      if (item.messagesAvailable) {
+        if (item.messagesTotal === 0) {
+          improvements.push('Aucun message posté dans le chat de l’équipe.');
+        } else {
+          strengths.push(item.messagesTotal + ' message(s) posté(s) dans le chat (' + item.messagesDistinct + ' distinct(s)).');
+          if (item.messagesDistinct < item.messagesTotal * 0.6) {
+            improvements.push('Une part importante des messages est répétitive : privilégier des messages apportant une information nouvelle.');
+          }
+          if (item.messagesTotal === item.maxMessages && item.messagesTotal > 0) {
+            strengths.push('Activité de chat la plus élevée du palmarès (' + item.messagesTotal + ' messages).');
+          }
+        }
+      } else {
+        notes.push('Messages de chat absents de l’export : cet indicateur est affiché « N/A » et n’est pas assimilé à une absence d’activité.');
+      }
+      if (item.teamDevRaw != null) {
+        if (item.teamDevRaw >= 70) {
+          strengths.push('Développeurs performants (score moyen ' + fmtRaw(item.teamDevRaw) + ').');
+        } else if (item.teamDevRaw < 50) {
+          improvements.push('Performance des développeurs à consolider (score moyen ' + fmtRaw(item.teamDevRaw) + ').');
+        }
+      }
+      if (item.decided != null && item.decided > 0) {
+        notes.push('Résultats client de l’équipe : ' + item.accepted + ' acceptation(s), ' + item.refused + ' refus (taux d’acceptation ' + fmtPct(item.acceptanceRate) + ').');
+      }
+    } else if (kind === 'team') {
+      if (item.devRaw != null) {
+        if (item.devRaw >= 70) strengths.push('Développeurs performants (score moyen ' + fmtRaw(item.devRaw) + ').');
+        else if (item.devRaw < 50) improvements.push('Performance des développeurs à consolider (' + fmtRaw(item.devRaw) + ').');
+      } else {
+        notes.push('Aucun développeur avec des données exploitables.');
+      }
+      if (item.poRaw != null) {
+        if (item.poRaw >= 70) strengths.push('Product Owner performant (' + fmtRaw(item.poRaw) + ').');
+        else if (item.poRaw < 50) improvements.push('Validation du Product Owner à consolider (' + fmtRaw(item.poRaw) + ').');
+      }
+      if (item.poContribution != null) {
+        if (item.poContribution >= 70) strengths.push('Volume de validations du PO élevé (contribution retenue : ' + fmtRaw(item.poContribution) + ').');
+        else if (item.poContribution < 50) improvements.push('Volume de validations du PO perfectible (contribution retenue : ' + fmtRaw(item.poContribution) + ').');
+      }
+      if (item.smRaw != null) {
+        if (item.smRaw >= 70) strengths.push('Scrum Master performant (' + fmtRaw(item.smRaw) + ').');
+        else if (item.smRaw < 50) improvements.push('Accompagnement du Scrum Master à consolider (' + fmtRaw(item.smRaw) + ').');
+      }
+      if (item.smContribution != null) {
+        if (item.smContribution >= 70) strengths.push('Activité de chat du SM élevée (contribution retenue : ' + fmtRaw(item.smContribution) + ').');
+        else if (item.smContribution < 50) improvements.push('Activité de chat du SM perfectible (contribution retenue : ' + fmtRaw(item.smContribution) + ').');
+      }
+      if (item.poRaw != null || item.smRaw != null) {
+        notes.push('Les scores PO et SM complets servent à leur palmarès individuel ; le score collectif ne retient que leur contribution propre afin d’éviter de compter deux fois la performance des développeurs.');
+      }
+      if (item.decided != null && item.decided > 0) {
+        if (item.acceptanceRate >= 80) strengths.push('Très bonne acceptation client (' + fmtPct(item.acceptanceRate) + ').');
+        else if (item.acceptanceRate < 50) improvements.push('Taux d’acceptation client insuffisant (' + fmtPct(item.acceptanceRate) + ').');
+      }
+      if (item.tasksDone > 0) {
+        strengths.push(item.tasksDone + ' tâche(s) terminée(s) sur le sprint.');
+      }
+      if (item.missingRoles.length) {
+        notes.push('Rôles sans données : ' + item.missingRoles.join(', ') + '. Les pondérations ont été renormalisées, sans réintroduire les mêmes pénalités.');
+      }
+    }
+
+    return { strengths: strengths, improvements: improvements, notes: notes };
+  }
+
+  function commentsText(kind, sorted) {
+    const titles = {
+      team: 'Palmarès des équipes',
+      po: 'Palmarès des Product Owner',
+      sm: 'Palmarès des Scrum Master',
+      dev: 'Palmarès des Developers'
+    };
+    const lines = [titles[kind] + ' — ' + sorted.length + ' participant(s) classé(s).'];
+    sorted.forEach(function (item, index) {
+      const a = analysisFor(kind, item);
+      lines.push('');
+      lines.push('#' + (index + 1) + ' ' + item.label + (item.sub ? ' (' + item.sub + ')' : '')
+        + ' — note ' + fmtNote(item.note) + ' / 20 — score brut ' + fmtRaw(item.raw) + '.');
+      if (a.strengths.length) lines.push('  Points forts : ' + a.strengths.join(' '));
+      if (a.improvements.length) lines.push('  Axes d’amélioration : ' + a.improvements.join(' '));
+      if (a.notes.length) lines.push('  Précisions : ' + a.notes.join(' '));
+    });
+    return lines.join('\n');
+  }
+
+  // ---------------------------------------------------------------------
+  // Rendu HTML
+  // ---------------------------------------------------------------------
+  function renderPodium(items) {
+    if (!items.length) return '<div class="empty">Aucun participant à classer.</div>';
+    const top = items.slice(0, 3);
+    let order;
+    let classes;
+    let medals;
+    if (top.length >= 3) {
+      order = [top[1], top[0], top[2]];
+      classes = ['second', 'first', 'third'];
+      medals = ['🥈', '🥇', '🥉'];
+    } else if (top.length === 2) {
+      order = [top[1], top[0]];
+      classes = ['second', 'first'];
+      medals = ['🥈', '🥇'];
+    } else {
+      order = top;
+      classes = ['first'];
+      medals = ['🥇'];
+    }
+    let html = '<div class="podium">';
+    order.forEach(function (item, index) {
+      const rank = items.indexOf(item) + 1;
+      html += '<div class="step ' + (classes[index] || 'third') + '">'
+        + '<div class="medal">' + (medals[index] || '') + '</div>'
+        + '<div class="rank">#' + rank + '</div>'
+        + '<div class="name">' + esc(item.label) + '</div>'
+        + (item.sub ? '<div class="sub">' + esc(item.sub) + '</div>' : '')
+        + '<div class="score">' + fmtNote(item.note) + ' / 20</div>'
+        + '<div class="raw">Score brut : ' + fmtRaw(item.raw) + '</div>'
+        + '</div>';
+    });
+    html += '</div>';
+    return html;
+  }
+
+  function noteBadge(note) {
+    return '<span class="score-badge">' + fmtNote(note) + ' / 20</span>';
+  }
+
+  function rawSpan(raw) {
+    return '<span class="raw-score">' + fmtRaw(raw) + '</span>';
+  }
+
+  function pctCell(value) {
+    return value == null ? '<span class="na">N/A</span>' : fmtPct(value);
+  }
+
+  function naSpan() {
+    return '<span class="na">N/A</span>';
+  }
+
+  function tableHtml(headers, rows) {
+    let html = '<div class="table-wrap"><table><thead><tr>';
+    headers.forEach(function (h) { html += '<th>' + esc(h) + '</th>'; });
+    html += '</tr></thead><tbody>';
+    rows.forEach(function (row) {
+      html += '<tr>';
+      row.forEach(function (cell) { html += '<td>' + (cell == null ? '' : cell) + '</td>'; });
+      html += '</tr>';
+    });
+    html += '</tbody></table></div>';
+    return html;
+  }
+
+  function warningsHtml(ctx) {
+    if (!ctx.warnings.length) return '';
+    let html = '<div class="warnings"><strong>Contrôle des données</strong><ul>';
+    ctx.warnings.forEach(function (w) { html += '<li>' + esc(w) + '</li>'; });
+    html += '</ul></div>';
+    return html;
+  }
+
+  function analysisHtml(kind, sorted) {
+    if (!sorted.length) return '';
+    let html = '<div class="card"><h3>Pourquoi ce classement ?</h3><div class="analysis-grid">';
+    sorted.forEach(function (item, index) {
+      const a = analysisFor(kind, item);
+      html += '<article class="analysis">'
+        + '<div class="analysis-head">'
+        + '<span class="rank-pill">#' + (index + 1) + '</span>'
+        + '<h4>' + esc(item.label) + '</h4>'
+        + (item.sub ? '<span class="sub">' + esc(item.sub) + '</span>' : '')
+        + noteBadge(item.note)
+        + '</div>';
+      html += '<h5><span class="tag ok">Points forts</span></h5>';
+      html += '<ul>' + (a.strengths.length
+        ? a.strengths.map(function (s) { return '<li>' + esc(s) + '</li>'; }).join('')
+        : '<li>Aucun élément marquant dans les données disponibles.</li>') + '</ul>';
+      html += '<h5><span class="tag warn">Axes d’amélioration</span></h5>';
+      html += '<ul>' + (a.improvements.length
+        ? a.improvements.map(function (s) { return '<li>' + esc(s) + '</li>'; }).join('')
+        : '<li>Aucun axe prioritaire identifié.</li>') + '</ul>';
+      if (a.notes.length) {
+        html += '<p class="analysis-note">' + a.notes.map(esc).join(' ') + '</p>';
+      }
+      html += '</article>';
+    });
+    html += '</div></div>';
+    return html;
+  }
+
+  function synthesisHtml(kind, sorted) {
+    return '<div class="card"><h3>Synthèse copiable</h3>'
+      + '<textarea readonly class="comments-box" rows="12">' + esc(commentsText(kind, sorted)) + '</textarea>'
+      + '</div>';
+  }
+
+  // ---------------------------------------------------------------------
+  // Palmarès des équipes
+  // ---------------------------------------------------------------------
+  function showTeams() {
+    const ctx = buildContext();
+    const sorted = prepare(ctx.teamItems, 'team');
+    let html = warningsHtml(ctx);
+    html += renderPodium(sorted);
+    html += '<div class="details card"><h3>Classement détaillé</h3>';
+    html += tableHtml(
+      ['Rang', 'Équipe', 'Note', 'Score brut', 'Développeurs', 'PO (score complet)', 'SM (score complet)', 'Contribution PO', 'Contribution SM', 'Tâches terminées', 'US acceptées', 'US refusées', 'Taux d’acceptation', 'En attente'],
+      sorted.map(function (item, index) {
+        return [
+          String(index + 1),
+          'Équipe ' + item.team,
+          noteBadge(item.note),
+          rawSpan(item.raw),
+          rawSpan(item.devRaw),
+          rawSpan(item.poRaw),
+          rawSpan(item.smRaw),
+          rawSpan(item.poContribution),
+          rawSpan(item.smContribution),
+          fmtCount(item.tasksDone),
+          item.accepted == null ? naSpan() : String(item.accepted),
+          item.refused == null ? naSpan() : String(item.refused),
+          pctCell(item.acceptanceRate),
+          item.pending == null ? naSpan() : String(item.pending)
+        ];
+      })
+    );
+    html += '<p class="formula"><strong>Score brut équipe</strong> = 0,60 × score moyen des développeurs + 0,20 × contribution du PO + 0,20 × contribution du SM. La contribution du PO est son volume de validations ; celle du SM est son activité de chat. Ainsi, la performance des développeurs déjà contenue dans les scores PO et SM n’est pas réinjectée une seconde fois : les scores PO/SM complets restent affichés pour leur palmarès individuel. Les pondérations sont renormalisées si un rôle ou un indicateur est absent. <strong>Note</strong> : 20/20 pour le premier, puis note strictement décroissante selon le rang et l’écart de performance normalisé (amplitude maximale de 12 points). Départage : score des développeurs, puis PO, puis SM, puis numéro d’équipe.</p>';
+    html += '</div>';
+    html += analysisHtml('team', sorted);
+    html += synthesisHtml('team', sorted);
+    resultEl.innerHTML = html;
+  }
+
+  // ---------------------------------------------------------------------
+  // Palmarès des Product Owners
+  // ---------------------------------------------------------------------
+  function showPO() {
+    const ctx = buildContext();
+    const sorted = prepare(ctx.poItems, 'po');
+    let html = warningsHtml(ctx);
+    html += renderPodium(sorted);
+    html += '<div class="details card"><h3>Classement détaillé</h3>';
+    html += tableHtml(
+      ['Rang', 'Login', 'Équipe', 'Note', 'Score brut', 'US validées / acceptées', 'US refusées', 'US tranchées', 'Taux d’acceptation', 'Taux de refus', 'Qualité des développeurs', 'Décisions client', 'En attente'],
+      sorted.map(function (item, index) {
+        return [
+          String(index + 1),
+          esc(item.label),
+          'Équipe ' + item.team,
+          noteBadge(item.note),
+          rawSpan(item.raw),
+          item.validated == null ? naSpan() : String(item.validated),
+          item.refused == null ? naSpan() : String(item.refused),
+          item.decided == null ? naSpan() : String(item.decided),
+          pctCell(item.acceptanceRate),
+          pctCell(item.refusalRate),
+          rawSpan(item.teamQuality),
+          fmtCount(item.clientDecisions),
+          item.pending == null ? naSpan() : String(item.pending)
+        ];
+      })
+    );
+    html += '<p class="formula"><strong>Score brut PO</strong> = 0,60 × qualité moyenne des développeurs + 0,40 × volume de validations. Volume = US validées / max(3, meilleur volume). Les taux d’acceptation et de refus sont déjà contenus dans la qualité des développeurs : ils ne sont pas retirés une seconde fois. Repli lorsque la qualité des développeurs est indisponible : 0,60 × taux d’acceptation + 0,40 × volume. Départage : taux d’acceptation, puis nombre d’US validées, puis login.</p>';
+    html += '</div>';
+    html += analysisHtml('po', sorted);
+    html += synthesisHtml('po', sorted);
+    resultEl.innerHTML = html;
+  }
+
+  // ---------------------------------------------------------------------
+  // Palmarès des Scrum Masters
+  // ---------------------------------------------------------------------
+  function showSM() {
+    const ctx = buildContext();
+    const sorted = prepare(ctx.smItems, 'sm');
+    let html = warningsHtml(ctx);
+    html += renderPodium(sorted);
+    html += '<div class="details card"><h3>Classement détaillé</h3>';
+    html += tableHtml(
+      ['Rang', 'Login', 'Équipe', 'Note', 'Score brut', 'Messages postés', 'Messages distincts', 'Score des développeurs', 'US acceptées', 'US refusées', 'Taux d’acceptation'],
+      sorted.map(function (item, index) {
+        return [
+          String(index + 1),
+          esc(item.label),
+          'Équipe ' + item.team,
+          noteBadge(item.note),
+          rawSpan(item.raw),
+          item.messagesAvailable ? String(item.messagesTotal) : naSpan(),
+          item.messagesAvailable ? String(item.messagesDistinct) : naSpan(),
+          rawSpan(item.teamDevRaw),
+          item.accepted == null ? naSpan() : String(item.accepted),
+          item.refused == null ? naSpan() : String(item.refused),
+          pctCell(item.acceptanceRate)
+        ];
+      })
+    );
+    html += '<p class="formula"><strong>Score brut SM</strong> = 0,35 × activité chat + 0,65 × score moyen des développeurs. Activité chat = messages distincts / max(3, meilleur volume). Les messages exactement répétés ne comptent qu’une fois pour l’activité ; le total reste affiché. Les clics et consultations d’onglets ne sont jamais utilisés. Si le chat est absent de l’export : score = score des développeurs. Départage : score des développeurs, puis messages distincts, puis login.</p>';
+    html += '</div>';
+    html += analysisHtml('sm', sorted);
+    html += synthesisHtml('sm', sorted);
+    resultEl.innerHTML = html;
+  }
+
+  // ---------------------------------------------------------------------
+  // Palmarès des Developers
+  // ---------------------------------------------------------------------
+  function showDev() {
+    const ctx = buildContext();
+    const sorted = prepare(ctx.devItems, 'dev');
+    let html = warningsHtml(ctx);
+    html += renderPodium(sorted);
+    html += '<div class="details card"><h3>Classement détaillé</h3>';
+    html += tableHtml(
+      ['Rang', 'Login', 'Équipe', 'Note', 'Score brut', 'Tâches décidées', 'Tâches terminées (hist.)', 'Décisions client', 'Acceptations', 'Refus', 'Taux d’acceptation', 'Taux de refus', 'Sans risque', 'Avec risque', 'Risques principaux'],
+      sorted.map(function (item, index) {
+        const decisionsKnown = item.decisionsKnown;
+        return [
+          String(index + 1),
+          esc(item.label),
+          'Équipe ' + item.team,
+          noteBadge(item.note),
+          rawSpan(item.raw),
+          item.taskCount == null ? naSpan() : String(item.taskCount),
+          String(item.history.completed || 0),
+          decisionsKnown ? String(item.decisions) : naSpan(),
+          decisionsKnown ? String(item.accept) : naSpan(),
+          decisionsKnown ? String(item.refus) : naSpan(),
+          decisionsKnown ? pctCell(item.acceptRate) : naSpan(),
+          decisionsKnown ? pctCell(item.refusRate) : naSpan(),
+          item.riskKnown ? String(item.safe) : naSpan(),
+          item.riskKnown ? String(item.risk) : naSpan(),
+          riskText(item)
+        ];
+      })
+    );
+    html += '<p class="formula"><strong>Qualité</strong> = taux d’acceptation × (1 − 0,25 × taux de risque). <strong>Score brut</strong> = 0,70 × qualité + 0,30 × volume. Volume = décisions / max(3, meilleur volume). Le risque est compté une seule fois par décision, même si plusieurs critères sont déclenchés ; les catégories sont affichées à titre explicatif. Sans décisions client : repli sur l’historique (tâches terminées, créations, déplacements, déblocages, blocages, archives). Départage : taux d’acceptation, puis volume, puis risque le plus faible, puis login.</p>';
+    html += '</div>';
+    html += analysisHtml('dev', sorted);
+    html += synthesisHtml('dev', sorted);
+    resultEl.innerHTML = html;
+  }
+
+  // ---------------------------------------------------------------------
+  // Import et navigation
+  // ---------------------------------------------------------------------
+  document.getElementById('importBtn').addEventListener('click', function () {
+    const f = fileInput.files && fileInput.files[0];
+    if (!f) { setStatus('Choisissez un fichier JSON.', 'err'); return; }
+    const reader = new FileReader();
+    reader.onload = function (e) {
+      try {
+        const obj = JSON.parse(e.target.result);
+        const err = validate(obj);
+        if (err) {
+          setStatus(err, 'err');
+          data = null;
+          actionsCard.hidden = true;
+          resultEl.innerHTML = '';
+          return;
+        }
+        data = obj;
+        const ctx = buildContext();
+        const teamsWithDecisions = ctx.teams.filter(function (t) { return t.agg.source === 'decisions'; }).length;
+        let message = 'Fichier importé : ' + obj.bilan.teams.length + ' équipes, '
+          + obj.history.entries.length + ' entrées d’historique. Décisions client : '
+          + teamsWithDecisions + ' équipe(s) avec historique individuel.';
+        if (ctx.warnings.length) {
+          message += ' ' + ctx.warnings.length + ' point(s) de contrôle à consulter dans le palmarès.';
+        }
+        setStatus(message, ctx.warnings.length ? 'info' : 'ok');
+        actionsCard.hidden = false;
+        resultEl.innerHTML = '';
+      } catch (ex) {
+        setStatus('JSON invalide : ' + ex.message, 'err');
+        data = null;
+        actionsCard.hidden = true;
+        resultEl.innerHTML = '';
+      }
+    };
+    reader.readAsText(f);
+  });
+
+  document.querySelectorAll('.btn-row button').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      document.querySelectorAll('.btn-row button').forEach(function (b) { b.classList.remove('active'); });
+      btn.classList.add('active');
+      const kind = btn.getAttribute('data-kind');
+      if (kind === 'teams') showTeams();
+      else if (kind === 'po') showPO();
+      else if (kind === 'sm') showSM();
+      else if (kind === 'dev') showDev();
+    });
+  });
+})();
+</script>
+</body>
+</html>
