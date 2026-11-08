@@ -1,7 +1,74 @@
 <?php
 /**
- * Données de démonstration : contenus Lorem ipsum.
- * Structure et noms de champs conservés à l’identique de la banque originale.
+ * PROMPT DE RECONSTRUCTION DES TABLEAUX DE DÉFIS (pour GitHub / démonstration)
+ *
+ * Ce fichier contient deux tableaux PHP vides de leur substance ($CHALLENGE_QUESTIONS
+ * et $CHALLENGE_TERMINALS) afin de ne pas exposer la banque de défis réelle.
+ *
+ * OBJECTIF
+ * Reconstruire ces deux tableaux avec des contenus COHÉRENTS et FONCTIONNELS pour
+ * l'application, mais DIFFÉRENTS de la banque originale, afin qu'aucun étudiant ne
+ * puisse réutiliser les réponses de l'application déployée.
+ *
+ * CONTEXTE APPLICATIF
+ * WorkFlow IT est une simulation Scrum (3 équipes, ~85 min). Chaque User Story (US01
+ * à US23) possède deux défis techniques déclenchés lorsqu'un Developer déclare la
+ * User Story « prête à valider » :
+ *   1) un mini-quiz (4 options, 1 correcte) sur les bonnes pratiques de développement
+ *      web / sécurité / validation / accès / données ;
+ *   2) un défi terminal (commande bash simulée) avec indices progressifs.
+ * Les réponses correctes alimentent le calcul du risque client (30 % vs 60 % de refus).
+ *
+ * CONTRAINTES STRUCTURELLES (à respecter strictement)
+ *
+ * 1) $CHALLENGE_QUESTIONS : tableau associatif clé = 'US01'..'US23'.
+ *    Chaque US contient un tableau indexé de 2 questions. Chaque question :
+ *      - 'id'          : chaîne 'USxx-Q1' puis 'USxx-Q2' (xx = numéro de l'US).
+ *      - 'question'    : chaîne, question claire en français (1 phrase).
+ *      - 'options'     : tableau indexé de 4 chaînes (réponses possibles).
+ *      - 'correct'     : entier 0..3, index de la bonne réponse dans 'options'.
+ *      - 'explanations': tableau indexé de 4 chaînes, une par option, expliquant
+ *                        pourquoi l'option est correcte ou incorrecte.
+ *    Règles : count(options) === count(explanations) === 4 ; correct ∈ {0,1,2,3}.
+ *
+ * 2) $CHALLENGE_TERMINALS : tableau associatif clé = 'US01'..'US23'.
+ *    Chaque US contient un tableau associatif avec :
+ *      - 'instruction' : chaîne, objectif du défi terminal (1 phrase).
+ *      - 'exploration' : tableau indexé de 5 commandes bash plausibles pour
+ *                        explorer (ex. pwd, ls, cat, curl --help, jq --help).
+ *      - 'command'     : chaîne, commande bash complète et valide à exécuter.
+ *      - 'partials'    : tableau indexé de 2 fragments de 'command' (préfixes
+ *                        successifs permettant d'obtenir les indices).
+ *      - 'indices'     : tableau indexé de 3 chaînes, indices progressifs du moins
+ *                        au plus explicite, le 3e donnant la commande exacte.
+ *    Règles : count(exploration) === 5 ; count(partials) === 2 ;
+ *             count(indices) === 3 ; 'command' contient les deux 'partials'.
+ *
+ * CONTRAINTES DE CONTENU
+ * - Thème : une application web générique de gestion de demandes / tickets
+ *   (authentification, validation, catégories, statuts, droits d'accès, historique,
+ *   sécurité des données). Ne pas reprendre les textes ni les réponses de la banque
+ *   originale.
+ * - Chaque question teste une bonne pratique (validation serveur, CSRF, isolation
+ *   des données, traçabilité, gestion d'erreurs, etc.). La bonne réponse est
+ *   toujours l'option la plus sûre et la plus conforme aux bonnes pratiques.
+ * - Les explications sont pédagogiques et cohérentes avec l'option.
+ * - Les commandes terminales utilisent des outils courants (curl, jq, grep, find,
+ *   ls, cat, awk) sur des fichiers/URL fictifs mais plausibles.
+ * - Les 'partials' sont des préfixes réels de 'command' (ex. 'curl -i' et
+ *   'http://localhost/api/...').
+ * - Les 'indices' guident progressivement vers 'command' sans la révéler au 1er.
+ *
+ * QUALITÉ ATTENDUE
+ * - Aucune erreur de syntaxe PHP (tableaux associatifs valides).
+ * - Cohérence : 'correct' pointe bien vers la bonne option.
+ * - Variété : ne pas répéter la même question ni la même commande pour toutes les US.
+ * - Pas de données sensibles, pas de chemins réels, pas de secrets.
+ *
+ * RÉSULTAT ATTENDU
+ * Deux tableaux PHP ($CHALLENGE_QUESTIONS et $CHALLENGE_TERMINALS) de 23 entrées
+ * (US01..US23), structurellement identiques à la banque originale, mais au contenu
+ * entièrement renouvelé et non réutilisable pour tricher.
  */
 
 declare(strict_types=1);
