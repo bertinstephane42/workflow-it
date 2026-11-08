@@ -1,0 +1,347 @@
+{
+    "team": 2,
+    "sprint_goal": "Permettre aux collaborateurs de déclarer leurs demandes informatiques et au service informatique de les prendre en charge et de suivre leur traitement.",
+    "sprint_goal_justification": "",
+    "sprint_goal_updated_by": null,
+    "sprint_goal_updated_at": null,
+    "sprint_goal_moderation": [],
+    "retrospective": "",
+    "retrospective_updated_by": null,
+    "retrospective_updated_at": null,
+    "retrospective_history": [],
+    "retrospective_moderation": [],
+    "members": [
+        {
+            "login": "abaptiste",
+            "role": "PO"
+        },
+        {
+            "login": "nroussel",
+            "role": "SCRUM_MASTER"
+        },
+        {
+            "login": "placombe",
+            "role": "DEVELOPER"
+        },
+        {
+            "login": "svidal",
+            "role": "DEVELOPER"
+        }
+    ],
+    "capacite_reduction": 0,
+    "stories": [
+        {
+            "id": "US01",
+            "titre": "Se connecter à l’application",
+            "description": "En tant que collaborateur, je souhaite me connecter à l’application afin d’accéder à mes services.",
+            "criteres": [
+                "Le collaborateur peut se connecter avec ses identifiants.",
+                "En cas d’échec, un message d’erreur générique s’affiche sans révéler si l’identifiant existe.",
+                "La session reste active pendant la séance et se ferme à la déconnexion."
+            ],
+            "estimation": 3,
+            "valeur": 8,
+            "priorite": "haute",
+            "risques": "Risque de blocage si la gestion des sessions ou des mots de passe est mal comprise ; attention aux tentatives de force brute.",
+            "selectionnee": false,
+            "etat": "a_faire",
+            "refus_commentaire": null,
+            "validee_at": null,
+            "refusee_at": null
+        },
+        {
+            "id": "US02",
+            "titre": "Créer une demande informatique",
+            "description": "En tant que collaborateur, je souhaite créer une demande informatique afin de signaler un problème ou un besoin.",
+            "criteres": [
+                "Le formulaire exige un titre, une description et une catégorie.",
+                "La demande créée apparaît dans la liste de son auteur avec un numéro unique.",
+                "Un accusé de création s’affiche et confirme l’enregistrement."
+            ],
+            "estimation": 5,
+            "valeur": 13,
+            "priorite": "haute",
+            "risques": "Risque de perte ou de duplication de demandes en cas de soumission multiple ou de problème lors de l’enregistrement ; les champs doivent également être validés pour éviter les données incomplètes ou malveillantes.",
+            "selectionnee": false,
+            "etat": "a_faire",
+            "refus_commentaire": null,
+            "validee_at": null,
+            "refusee_at": null
+        },
+        {
+            "id": "US03",
+            "titre": "Catégoriser une demande",
+            "description": "En tant que collaborateur, je souhaite catégoriser ma demande afin de faciliter son traitement.",
+            "criteres": [
+                "Une liste de catégories prédéfinies est proposée.",
+                "La catégorie choisie est enregistrée avec la demande.",
+                "La catégorie reste visible dans la liste et le détail du suivi."
+            ],
+            "estimation": 3,
+            "valeur": 5,
+            "priorite": "moyenne",
+            "risques": "Risque de mauvaise catégorisation si les intitulés sont ambigus ou si les catégories ne correspondent pas aux besoins réels ; une modification ultérieure des catégories pourrait également rendre certaines demandes incohérentes.",
+            "selectionnee": false,
+            "etat": "a_faire",
+            "refus_commentaire": null,
+            "validee_at": null,
+            "refusee_at": null
+        },
+        {
+            "id": "US04",
+            "titre": "Consulter l’état de ses demandes",
+            "description": "En tant que collaborateur, je souhaite consulter l’état de mes demandes afin de connaître leur avancement.",
+            "criteres": [
+                "L’auteur voit uniquement ses demandes et leur statut dans son espace personnel.",
+                "Le statut est mis à jour après traitement.",
+                "Les techniciens et responsables accèdent aux demandes selon leurs droits."
+            ],
+            "estimation": 3,
+            "valeur": 8,
+            "priorite": "moyenne",
+            "risques": "Risque d’exposition de demandes appartenant à d’autres collaborateurs si les droits d’accès sont mal contrôlés ; risque de perte de confiance si les statuts affichés ne sont pas actualisés correctement.",
+            "selectionnee": false,
+            "etat": "a_faire",
+            "refus_commentaire": null,
+            "validee_at": null,
+            "refusee_at": null
+        },
+        {
+            "id": "US05",
+            "titre": "Consulter les demandes en attente",
+            "description": "En tant que technicien, je souhaite consulter les demandes en attente afin de pouvoir les traiter.",
+            "criteres": [
+                "Le technicien voit les demandes non assignées.",
+                "La liste est triée par priorité puis par date de création.",
+                "Le détail d’une demande est accessible depuis la liste."
+            ],
+            "estimation": 5,
+            "valeur": 13,
+            "priorite": "haute",
+            "risques": "Risque de surcharge ou de lenteur si le nombre de demandes augmente ; une erreur dans les filtres ou le tri pourrait masquer des demandes prioritaires et retarder leur prise en charge.",
+            "selectionnee": false,
+            "etat": "a_faire",
+            "refus_commentaire": null,
+            "validee_at": null,
+            "refusee_at": null
+        },
+        {
+            "id": "US06",
+            "titre": "Modifier le statut d’une demande",
+            "description": "En tant que technicien, je souhaite modifier le statut d’une demande afin de suivre son traitement.",
+            "criteres": [
+                "Le technicien peut choisir un nouveau statut parmi les statuts autorisés.",
+                "Le changement est enregistré avec sa date et son auteur.",
+                "L’auteur peut voir le nouveau statut dans le suivi."
+            ],
+            "estimation": 3,
+            "valeur": 3,
+            "priorite": "moyenne",
+            "risques": "Risque de progression incohérente si les transitions entre statuts ne sont pas contrôlées ; risque de perte de traçabilité si l’auteur ou la date du changement ne sont pas correctement enregistrés.",
+            "selectionnee": false,
+            "etat": "a_faire",
+            "refus_commentaire": null,
+            "validee_at": null,
+            "refusee_at": null
+        },
+        {
+            "id": "US07",
+            "titre": "Affecter une demande à un technicien",
+            "description": "En tant que responsable informatique, je souhaite affecter une demande à un technicien afin de répartir le travail.",
+            "criteres": [
+                "Le responsable choisit un technicien actif dans la liste de l’équipe.",
+                "L’affectation et le nom du technicien sont visibles dans la demande.",
+                "Le technicien retrouve la demande dans sa liste."
+            ],
+            "estimation": 3,
+            "valeur": 5,
+            "priorite": "moyenne",
+            "risques": "Risque de mauvaise répartition de la charge si les affectations ne tiennent pas compte de la disponibilité des techniciens ; une affectation à un technicien inactif pourrait empêcher le traitement de la demande.",
+            "selectionnee": false,
+            "etat": "a_faire",
+            "refus_commentaire": null,
+            "validee_at": null,
+            "refusee_at": null
+        },
+        {
+            "id": "US08",
+            "titre": "Recevoir une notification de changement",
+            "description": "En tant que collaborateur, je souhaite recevoir une notification lors d’un changement de statut afin d’être informé.",
+            "criteres": [
+                "Une notification est créée dans l’application à chaque changement de statut.",
+                "La notification indique la demande concernée et le nouveau statut.",
+                "Le collaborateur peut consulter et marquer ses notifications comme lues."
+            ],
+            "estimation": 5,
+            "valeur": 8,
+            "priorite": "moyenne",
+            "risques": "Risque de notifications manquantes ou dupliquées si leur création n’est pas synchronisée avec le changement de statut ; risque d’envoyer une information à un mauvais destinataire.",
+            "selectionnee": false,
+            "etat": "a_faire",
+            "refus_commentaire": null,
+            "validee_at": null,
+            "refusee_at": null
+        },
+        {
+            "id": "US09",
+            "titre": "Commenter une demande",
+            "description": "En tant que collaborateur, je souhaite ajouter un commentaire à une demande afin de compléter les informations.",
+            "criteres": [
+                "Un commentaire non vide peut être ajouté à une demande.",
+                "Le commentaire affiche son auteur et sa date.",
+                "Les commentaires sont visibles dans l’historique de la demande."
+            ],
+            "estimation": 3,
+            "valeur": 2,
+            "priorite": "basse",
+            "risques": "Risque de divulgation d’informations confidentielles dans les commentaires ; les contenus libres doivent être protégés contre les injections de code et leur auteur doit être correctement identifié.",
+            "selectionnee": false,
+            "etat": "a_faire",
+            "refus_commentaire": null,
+            "validee_at": null,
+            "refusee_at": null
+        },
+        {
+            "id": "US10",
+            "titre": "Visualiser les demandes urgentes",
+            "description": "En tant que responsable informatique, je souhaite visualiser les demandes urgentes afin de traiter les situations prioritaires.",
+            "criteres": [
+                "Les demandes urgentes portent un indicateur visible dans la liste et le détail.",
+                "Un filtre permet d’afficher uniquement les demandes urgentes.",
+                "Le responsable peut ouvrir une demande urgente depuis la liste ou le filtre."
+            ],
+            "estimation": 5,
+            "valeur": 13,
+            "priorite": "haute",
+            "risques": "Risque de masquer un incident critique si l’indicateur ou le filtre d’urgence est incorrect ; une mauvaise identification des demandes urgentes peut également détourner les ressources des véritables priorités.",
+            "selectionnee": false,
+            "etat": "a_faire",
+            "refus_commentaire": null,
+            "validee_at": null,
+            "refusee_at": null
+        },
+        {
+            "id": "US11",
+            "titre": "Filtrer les demandes",
+            "description": "En tant que responsable informatique, je souhaite filtrer les demandes par service ou catégorie afin de faciliter leur suivi.",
+            "criteres": [
+                "Un filtre par service est disponible.",
+                "Un filtre par catégorie est disponible.",
+                "Les filtres par service et par catégorie peuvent être combinés."
+            ],
+            "estimation": 3,
+            "valeur": 5,
+            "priorite": "moyenne",
+            "risques": "Risque de résultats incomplets ou erronés si les filtres combinés appliquent une logique incorrecte ; des valeurs incohérentes entre services et catégories pourraient fausser l’analyse.",
+            "selectionnee": false,
+            "etat": "a_faire",
+            "refus_commentaire": null,
+            "validee_at": null,
+            "refusee_at": null
+        },
+        {
+            "id": "US12",
+            "titre": "Signaler une demande urgente",
+            "description": "En tant que collaborateur, je souhaite signaler une demande urgente afin d’attirer l’attention du service informatique.",
+            "criteres": [
+                "Le collaborateur peut marquer une demande comme urgente.",
+                "L’urgence et sa justification sont visibles par le service informatique.",
+                "Une justification non vide est exigée avant l’enregistrement."
+            ],
+            "estimation": 2,
+            "valeur": 8,
+            "priorite": "moyenne",
+            "risques": "Risque de multiplication des fausses urgences si les collaborateurs utilisent ce signalement de manière abusive ; une justification insuffisante peut compliquer l’évaluation réelle de la priorité.",
+            "selectionnee": false,
+            "etat": "a_faire",
+            "refus_commentaire": null,
+            "validee_at": null,
+            "refusee_at": null
+        },
+        {
+            "id": "US13",
+            "titre": "Consulter l’historique des interventions",
+            "description": "En tant que technicien, je souhaite consulter l’historique des interventions afin de connaître les actions déjà réalisées.",
+            "criteres": [
+                "L’historique liste les interventions d’une demande dans l’ordre chronologique.",
+                "Chaque entrée affiche la date, l’auteur et l’action réalisée.",
+                "L’historique est en lecture seule pour les utilisateurs."
+            ],
+            "estimation": 5,
+            "valeur": 2,
+            "priorite": "basse",
+            "risques": "Risque de perte de traçabilité si certaines actions ne sont pas historisées ou si les dates sont incorrectes ; risque d’altération des preuves de traitement si l’historique n’est pas réellement protégé en écriture.",
+            "selectionnee": false,
+            "etat": "a_faire",
+            "refus_commentaire": null,
+            "validee_at": null,
+            "refusee_at": null
+        },
+        {
+            "id": "US14",
+            "titre": "Consulter les statistiques d’activité",
+            "description": "En tant que responsable informatique, je souhaite consulter des statistiques d’activité afin de suivre l’activité du service informatique.",
+            "criteres": [
+                "Le responsable voit le nombre de demandes par statut.",
+                "Le responsable voit le volume de demandes par catégorie.",
+                "Les indicateurs sont calculés entre une date de début et une date de fin choisies."
+            ],
+            "estimation": 8,
+            "valeur": 5,
+            "priorite": "basse",
+            "risques": "Risque d’indicateurs trompeurs si les données sont incomplètes, mal agrégées ou si les périodes sont mal interprétées ; les volumes de données peuvent également dégrader les temps de calcul.",
+            "selectionnee": false,
+            "etat": "a_faire",
+            "refus_commentaire": null,
+            "validee_at": null,
+            "refusee_at": null
+        },
+        {
+            "id": "US22",
+            "titre": "Rechercher une demande",
+            "description": "En tant que technicien, je souhaite rechercher une demande par numéro ou par mot-clé afin de retrouver rapidement un dossier parmi les demandes de l’entreprise.",
+            "criteres": [
+                "Une recherche par numéro de demande ou par mot-clé du titre est disponible.",
+                "Les résultats restent limités aux demandes que l’utilisateur est autorisé à consulter.",
+                "La recherche peut être combinée avec le filtre par service ou par catégorie."
+            ],
+            "estimation": 3,
+            "valeur": 8,
+            "priorite": "moyenne",
+            "risques": "Risque de résultats manquants si la recherche ne gère pas correctement les accents, les caractères spéciaux ou les mots partiels ; risque de divulgation de demandes si les droits d’accès ne sont pas appliqués avant le retour des résultats.",
+            "selectionnee": false,
+            "etat": "a_faire",
+            "refus_commentaire": null,
+            "validee_at": null,
+            "refusee_at": null
+        },
+        {
+            "id": "US23",
+            "titre": "Planifier une intervention",
+            "description": "En tant que technicien, je souhaite planifier une intervention afin d’organiser le passage sur site et d’informer le collaborateur.",
+            "criteres": [
+                "Une date et un créneau d’intervention peuvent être enregistrés sur une demande.",
+                "Le planning empêche deux interventions qui se chevauchent pour un même technicien.",
+                "La date et le créneau planifiés sont visibles par le collaborateur."
+            ],
+            "estimation": 5,
+            "valeur": 8,
+            "priorite": "moyenne",
+            "risques": "Risque de conflits de planning si deux interventions sont réservées simultanément pour un même technicien ; une mauvaise gestion des dates, créneaux ou disponibilités peut entraîner des rendez-vous impossibles à honorer.",
+            "selectionnee": false,
+            "etat": "a_faire",
+            "refus_commentaire": null,
+            "validee_at": null,
+            "refusee_at": null
+        }
+    ],
+    "tasks": [],
+    "messages": [],
+    "swaps": [],
+    "client_decisions": [],
+    "next_task_number": 1,
+    "next_message_number": 1,
+    "revision": 1,
+    "initialized_at": "2026-11-08T09:32:35+01:00",
+    "updated_at": "2026-11-08T09:32:35+01:00"
+}

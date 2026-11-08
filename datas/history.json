@@ -1,0 +1,28 @@
+{
+    "entries": [
+        {
+            "at": "2026-11-08T09:32:35+01:00",
+            "ts": 1794126755,
+            "team": 0,
+            "author": "sbertin",
+            "type": "reset",
+            "message": "Initialisation d’une nouvelle séance (2026-11-19).",
+            "details": {
+                "date": "2026-11-19",
+                "sim_start": "2026-11-19T13:10:00+01:00",
+                "sim_end": "2026-11-19T14:40:00+01:00"
+            }
+        },
+        {
+            "at": "2026-11-08T09:32:49+01:00",
+            "ts": 1794126769,
+            "team": 0,
+            "author": "sbertin",
+            "type": "logout",
+            "message": "Déconnexion.",
+            "details": []
+        }
+    ],
+    "revision": 2,
+    "updated_at": "2026-11-08T09:32:49+01:00"
+}

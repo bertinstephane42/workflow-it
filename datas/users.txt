@@ -1,0 +1,16 @@
+# Un login autorisé par ligne (lettres minuscules uniquement, 1 à 30 caractères)
+# Exemple :
+# dupont
+# martin
+mvercruysse;15031985;0;formateur
+lcabanel;08091998;1;po
+rmoreau;12042005;1;sm
+jdelmas;03072004;1;dev
+kferrand;19112005;1;dev
+abaptiste;22022003;2;po
+nroussel;07052006;2;sm
+placombe;30102005;2;dev
+svidal;14082004;2;dev
+hcastel;09062001;3;po
+tlemoine;27032005;3;sm
+grousseau;11122002;3;dev

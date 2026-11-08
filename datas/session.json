@@ -1,0 +1,16 @@
+{
+    "revision": 1,
+    "generation": "7fd901704ce3a297",
+    "date": "2026-11-19",
+    "opened_at": 1795089600,
+    "sim_start_at": 1795090200,
+    "sim_end_at": 1795095600,
+    "paused": false,
+    "paused_at": null,
+    "paused_by": null,
+    "announcements": [],
+    "next_announcement_id": 1,
+    "pedagogical_messages": [],
+    "reset_at": "2026-11-08T09:32:35+01:00",
+    "updated_at": "2026-11-08T09:32:35+01:00"
+}
