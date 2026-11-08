@@ -1,0 +1,9 @@
+# Interdire l'accès HTTP direct aux journaux et aux données privées de WorkFlow IT.
+# Compatible Apache 2.4 (mod_authz_core) et Apache 2.2 (Order/Deny).
+<IfModule mod_authz_core.c>
+    Require all denied
+</IfModule>
+<IfModule !mod_authz_core.c>
+    Order allow,deny
+    Deny from all
+</IfModule>
